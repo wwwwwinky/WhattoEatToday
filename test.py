@@ -1,38 +1,28 @@
 import tkinter
-import requests
-import json
 from ttkbootstrap import *
 from PIL import Image, ImageTk
+import wenxin_api
+from wenxin_api.tasks.cloze import Cloze
 
-url = "https://wenxin.baidu.com/younger/portal/api/rest/1.0/ernie/3.0/zeus"
-
-
-def get_token():
-    token = requests.request("POST",
-                             "https://wenxin.baidu.com/younger/portal/api/oauth/token",
-                             data={"grant_type": "client_credentials",
-                                   "client_id": "KUpphXTVYdcwyZchPBfFGrDRYlmbDYkz",
-                                   "client_secret": "7hggpWL14vIPDu8XFU9Y2u2cLMrHXNhX"},
-                             timeout=3)
-    return json.loads(token.text)["data"]
+wenxin_api.ak = "KUpphXTVYdcwyZchPBfFGrDRYlmbDYkz"
+wenxin_api.sk = "7hggpWL14vIPDu8XFU9Y2u2cLMrHXNhX"
 
 
 def click_button(data, label):
     label.config(text="")
-    text ="午饭想吃" + data + "，那我吃[MASK]" + "吧！"
-    payload = {
-        'text': text,
-        'seq_len': 256,
-        'task_prompt': '',
-        'dataset_prompt': '',
-        'access_token': token,
-        'topk': 10,
-        'stop_token': '',
-        'min_dec_len': 1
+    text ="午饭想吃" + data + "，那我吃[]吧！"
+    input_dict = {
+        "text": text,
+        "seq_len": 512,
+        "topp": 0.3,
+        "penalty_score": 1.2,
+        "min_dec_len": 1,
+        "is_unidirectional": 0,
+        "task_prompt": "cloze"
     }
-    response = requests.request("POST", url, data=payload)
-    answer = json.loads(response.text)["data"]["result"]
-    label.config(text="吃"+ answer)
+    rst = Cloze.create(**input_dict)
+    print(rst['result'])
+    label.config(text="吃"+ rst['result'])
 
 
 def set_window():
@@ -49,7 +39,6 @@ def set_window():
 
 style = Style()
 style = Style(theme='sandstone')
-token = get_token()
 window = style.master
 window.title('今天吃什么')
 window.geometry('400x150')
