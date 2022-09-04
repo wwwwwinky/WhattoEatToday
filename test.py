@@ -10,7 +10,7 @@ wenxin_api.sk = "7hggpWL14vIPDu8XFU9Y2u2cLMrHXNhX"
 
 def click_button(data, label):
     label.config(text="")
-    text ="午饭想吃" + data + "，那我吃[]吧！"
+    text ="午饭想吃" + data + "，那我吃_吧！"
     input_dict = {
         "text": text,
         "seq_len": 512,
